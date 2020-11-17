@@ -9,13 +9,7 @@
 ## remove all traits from inds matrix, add C/D
 ## add mutation rate mu
 ## add fn to track strategies of neighbours
-
-#### TO DO
-## create payoff matrix / function
-## compute modified lambdas
-## fix boundary problem
-## test parameter values 
-## add functions to store data
+## add modified donation game + modify lambda with payoffs
 
 ####################################################################################
 
