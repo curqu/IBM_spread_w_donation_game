@@ -9,7 +9,10 @@
 ## remove all traits from inds matrix, add C/D
 ## add mutation rate mu
 ## add fn to track strategies of neighbours
-## add modified donation game + modify lambda with payoffs
+
+#### TO DO
+
+## fix boundary problem?
 
 ####################################################################################
 
@@ -17,19 +20,19 @@
 hood<-1               # maximum distance for interactions between neighbours
                       # used for computing neighbourhood in growth fn
 width<-8              # width of landscape (y dimension)
-length<-200           # length of landscape (x dim.)
+length<-600           # length of landscape (x dim.)
 
 ## population parameters (don't change)
 n0<-10                # number of starting individuals
-lambda_base<-12       # base lambda value
+lambda_base<-10       # base lambda value
 K<-20                 # carrying capacity per neighbourhood
 m<-1                  # dispersal (m) value
 mu<-0.02              # mutation rate
 
 ## change
-b<-5                  # fitness benefit
-c<-0.5                # fitness cost
-r<-c/b                # cost / benefit ratio
+b<-1                  # fitness benefit
+c<-0.9                # fitness cost
+r<-c/b               # cost / benefit ratio
 
 ## label columns
 x_col=1
@@ -91,7 +94,12 @@ birth<-function(inds){
   }
   # adjust lambdas
   for (i in 1:total_inds){
-    inds[i,lambda_col]<-max(inds[i,lambda_col]+payoffs(inds[i,]),0)
+    ## optional allee effect boost
+    # if (inds[i,pt_col]==1 && inds[i,nc_col])
+    #   inds[i,lambda_col]<-0
+    ##
+   # else 
+      inds[i,lambda_col]<-max(inds[i,lambda_col]+payoffs(inds[i,]),0)
   }
   # make the babies
   for (i in 1:total_inds){
@@ -142,7 +150,7 @@ payoffs<-function(parent){
   if (parent[pt_col]==0){
     return(parent[nc_col]*b)
   }
-  else 
+  else
   return(parent[nc_col]*b-parent[nbr_col]*c)
 }
 
@@ -159,8 +167,8 @@ mutate<-function(inds){
 
 #run simulations
 x<-1
-n<-1
-
+n<-50
+while(x<=n){
 ## create a table to store info about individuals
 inds0 <- array(data =0, dim=c(n0,8))
 colnames(inds0)<- c("x_loc","y_loc","lambda","parent_trait","nbr","nbr_c","repr","line")
@@ -175,10 +183,9 @@ inds0[,4]<-1
 inds0[,8]<-1:n0
 inds<-inds0
 
-while(x<=n){
 # simulate movement over 20 time steps
 ts<-0
-time_steps<-40
+time_steps<-30
 while(ts<time_steps){
   babies<-birth(inds);
   inds<-dispersal(babies)
@@ -206,14 +213,21 @@ x<-x+1
 
 #for plotting
 indsdf<-as.data.frame(inds)
+indsdf<-inds_0.9_010
 extent<-max(indsdf$x_loc)
 leadingedge<-subset(indsdf,x_loc>extent-5)
 hist(leadingedge$parent_trait)
-hist(inds[,4])
+hist(indsdf$parent_trait)
+hist(indsdf$x_loc)
+hist(indsdf$lambda)
+hist(leadingedge$lambda)
 hist(indsdf$line)
 hist(leadingedge$line)
-plot(inds[,1],inds[,2]
-     #,xlim=c(280,300)
+coops<-subset(indsdf,parent_trait==1)
+defs<-subset(indsdf,parent_trait==0)
+plot(coops$y_loc~coops$x_loc
+     ,xlim=c(0,100)
      )
-points(subset(indsdf,parent_trait==0)[,1],subset(indsdf,parent_trait==0)[,2],col="green")
+points(defs$x_loc,
+       defs$y_loc,col="green")
 
