@@ -187,7 +187,7 @@ inds<-inds0
 ts<-0
 time_steps<-30
 while(ts<time_steps){
-  babies<-birth(inds);
+  babies<-birth(inds)
   inds<-dispersal(babies)
   ts<-ts+1
 }
